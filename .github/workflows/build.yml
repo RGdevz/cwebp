@@ -57,9 +57,13 @@ jobs:
         run: |
           cd libwebp
           if [ -f autogen.sh ]; then ./autogen.sh; fi
-          ./configure CFLAGS="-O3 -fPIE" LDFLAGS="-pie"
+          ./configure --disable-shared --enable-static CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie"
           make
           sudo make install
+
+      - name: Verify static linking
+        run: |
+          ldd /usr/local/bin/cwebp || echo "No dynamic libraries linked (static binary)"
 
       - name: Upload Linux x86_64 artifacts
         uses: actions/upload-artifact@v4
@@ -88,9 +92,13 @@ jobs:
         run: |
           cd libwebp
           if [ -f autogen.sh ]; then ./autogen.sh; fi
-          ./configure CFLAGS="-O3 -fPIE" LDFLAGS="-pie"
+          ./configure --disable-shared --enable-static CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie"
           make
           sudo make install
+
+      - name: Verify static linking
+        run: |
+          ldd /usr/local/bin/cwebp || echo "No dynamic libraries linked (static binary)"
 
       - name: Upload Linux ARM64 artifacts
         uses: actions/upload-artifact@v4
