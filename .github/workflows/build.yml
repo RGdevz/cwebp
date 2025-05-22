@@ -51,19 +51,18 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc make autoconf automake libtool
+          sudo apt-get install -y gcc make autoconf automake libtool libc6-dev libpng-dev libjpeg-dev libtiff-dev zlib1g-dev
 
       - name: Build cwebp for Linux x86_64
         run: |
           cd libwebp
-          if [ -f autogen.sh ]; then ./autogen.sh; fi
-          ./configure --disable-shared --enable-static CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie"
-          make
-          sudo make install
+          make -f makefile.unix CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie"
+          sudo cp examples/cwebp /usr/local/bin/cwebp
 
       - name: Verify static linking
         run: |
           ldd /usr/local/bin/cwebp || echo "No dynamic libraries linked (static binary)"
+          file /usr/local/bin/cwebp
 
       - name: Upload Linux x86_64 artifacts
         uses: actions/upload-artifact@v4
@@ -86,19 +85,18 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc make autoconf automake libtool
+          sudo apt-get install -y gcc make autoconf automake libtool libc6-dev libpng-dev libjpeg-dev libtiff-dev zlib1g-dev
 
       - name: Build cwebp for Linux ARM64
         run: |
           cd libwebp
-          if [ -f autogen.sh ]; then ./autogen.sh; fi
-          ./configure --disable-shared --enable-static CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie"
-          make
-          sudo make install
+          make -f makefile.unix CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie"
+          sudo cp examples/cwebp /usr/local/bin/cwebp
 
       - name: Verify static linking
         run: |
           ldd /usr/local/bin/cwebp || echo "No dynamic libraries linked (static binary)"
+          file /usr/local/bin/cwebp
 
       - name: Upload Linux ARM64 artifacts
         uses: actions/upload-artifact@v4
