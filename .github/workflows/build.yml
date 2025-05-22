@@ -57,7 +57,7 @@ jobs:
         run: |
           cd libwebp
           if [ -f autogen.sh ]; then ./autogen.sh; fi
-          ./configure
+          ./configure CFLAGS="-O3 -fPIE" LDFLAGS="-pie"
           make
           sudo make install
 
@@ -68,7 +68,7 @@ jobs:
           path: /usr/local/bin/cwebp
 
   build-linux-arm:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-arm64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -79,20 +79,16 @@ jobs:
           cd libwebp
           git checkout main
 
-      - name: Install dependencies and ARM toolchain
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc make autoconf automake libtool gcc-aarch64-linux-gnu
-          sudo ln -s /usr/bin/aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc
+          sudo apt-get install -y gcc make autoconf automake libtool
 
       - name: Build cwebp for Linux ARM64
         run: |
           cd libwebp
           if [ -f autogen.sh ]; then ./autogen.sh; fi
-          ./configure --host=aarch64-linux-gnu --build=`./config.guess` \
-            CC="aarch64-linux-gnu-gcc" \
-            CFLAGS="-O3 -fPIE" \
-            LDFLAGS="-pie"
+          ./configure CFLAGS="-O3 -fPIE" LDFLAGS="-pie"
           make
           sudo make install
 
