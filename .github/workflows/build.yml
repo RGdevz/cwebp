@@ -1,6 +1,10 @@
 name: Build cwebp
 
 on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -68,7 +72,7 @@ jobs:
           path: /usr/local/bin/cwebp
 
   build-linux-arm:
-    runs-on: ubuntu-latest-arm64
+    runs-on: ubuntu-arm64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
