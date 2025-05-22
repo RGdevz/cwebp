@@ -1,0 +1,82 @@
+name: Build cwebp
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-linux-x64:
+    name: Build for Linux x64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y autoconf automake libtool make gcc
+
+      - name: Clone libwebp
+        run: git clone https://chromium.googlesource.com/webm/libwebp
+
+      - name: Build
+        run: |
+          cd libwebp
+          ./autogen.sh
+          ./configure
+          make -j$(nproc)
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cwebp-linux-x64
+          path: libwebp/examples/cwebp
+
+  build-linux-arm64:
+    name: Build for Linux ARM64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y autoconf automake libtool make gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+      - name: Clone libwebp
+        run: git clone https://chromium.googlesource.com/webm/libwebp
+
+      - name: Build
+        run: |
+          cd libwebp
+          ./autogen.sh
+          ./configure --host=aarch64-linux-gnu
+          make -j$(nproc)
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cwebp-linux-arm64
+          path: libwebp/examples/cwebp
+
+  build-windows-x64:
+    name: Build for Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            git
+            make
+            autoconf
+            automake
+            libtool
+            mingw-w64-x86_64-toolchain
+
+      - name: Build with MSYS2
+        shell: msys2 {0}
+        run: |
+          git clone https://chromium.googlesource.com/webm/libwebp
+          cd libwebp
+          ./autogen.sh
+          ./configure
+          make -j$(nproc)
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cwebp-win-x64.exe
+          path: libwebp/examples/cwebp.exe
