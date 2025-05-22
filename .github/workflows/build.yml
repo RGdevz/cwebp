@@ -1,10 +1,7 @@
 name: Build cwebp
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-windows:
@@ -12,6 +9,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Clone libwebp source
+        run: |
+          git clone https://github.com/webmproject/libwebp.git
+          cd libwebp
+          git checkout main
+        shell: cmd
 
       - name: Set up MSVC
         uses: microsoft/setup-msbuild@v2
@@ -21,6 +25,7 @@ jobs:
 
       - name: Build cwebp for Windows (x64)
         run: |
+          cd libwebp
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           nmake /f Makefile.vc CFG=release-static RTLIBCFG=static OBJDIR=output
         shell: cmd
@@ -29,13 +34,19 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cwebp-windows-x64
-          path: output/release-static/x64/bin/cwebp.exe
+          path: libwebp/output/release-static/x64/bin/cwebp.exe
 
   build-linux-x86:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Clone libwebp source
+        run: |
+          git clone https://github.com/webmproject/libwebp.git
+          cd libwebp
+          git checkout main
 
       - name: Install dependencies
         run: |
@@ -44,7 +55,8 @@ jobs:
 
       - name: Build cwebp for Linux x86_64
         run: |
-          ./autogen.sh || true
+          cd libwebp
+          if [ -f autogen.sh ]; then ./autogen.sh; fi
           ./configure
           make
           sudo make install
@@ -61,17 +73,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Clone libwebp source
+        run: |
+          git clone https://github.com/webmproject/libwebp.git
+          cd libwebp
+          git checkout main
+
       - name: Install dependencies and ARM toolchain
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc make autoconf automake libtool gcc-aarch64-linux-gnu
-          sudo ln -s /usr/bin/aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc -EL
+          sudo ln -s /usr/bin/aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc
 
       - name: Build cwebp for Linux ARM64
         run: |
-          ./autogen.sh || true
+          cd libwebp
+          if [ -f autogen.sh ]; then ./autogen.sh; fi
           ./configure --host=aarch64-linux-gnu --build=`./config.guess` \
-            CC="aarch64-linux-gnu-gcc -EL" \
+            CC="aarch64-linux-gnu-gcc" \
             CFLAGS="-O3 -fPIE" \
             LDFLAGS="-pie"
           make
