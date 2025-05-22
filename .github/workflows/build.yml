@@ -56,7 +56,8 @@ jobs:
       - name: Build cwebp for Linux x86_64
         run: |
           cd libwebp
-          make -f makefile.unix CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie"
+          make -f makefile.unix CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie -lm"
+          strip examples/cwebp
           sudo cp examples/cwebp /usr/local/bin/cwebp
 
       - name: Verify static linking
@@ -90,7 +91,8 @@ jobs:
       - name: Build cwebp for Linux ARM64
         run: |
           cd libwebp
-          make -f makefile.unix CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie"
+          make -f makefile.unix CFLAGS="-O3 -fPIE" LDFLAGS="-static -pie -lm"
+          strip examples/cwebp
           sudo cp examples/cwebp /usr/local/bin/cwebp
 
       - name: Verify static linking
